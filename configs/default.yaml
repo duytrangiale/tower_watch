@@ -1,0 +1,29 @@
+# Default parameters for the synthetic lattice tower.
+#
+# Geometry mirrors LUMO's stated dimensions (9 m, three 3 m segments,
+# triangular isosceles cross-section, 7 bracing levels per segment).
+# base_width_m / depth_m and the material areas below are first-pass
+# placeholders tuned only so the first bending frequency lands in the
+# "single-digit to low tens of Hz" range expected for a lattice mast of
+# this size (see TowerWatch_guideline.md Sec 4.2 acceptance criteria).
+# Revisit against LUMO's actual README/FE model on Day 4.
+
+geometry:
+  height_m: 9.0
+  n_segments: 3
+  segment_height_m: 3.0
+  bracing_levels_per_segment: 7
+  base_width_m: 1.2   # distance between the two "back" legs
+  depth_m: 1.0        # perpendicular distance of the third leg (isosceles apex)
+
+material:
+  youngs_modulus_pa: 200.0e+9  # structural steel; PyYAML requires an explicit exponent sign
+  density_kg_m3: 7850.0
+  leg_area_m2: 5.0e-4
+  brace_area_m2: 2.0e-4        # applies to both diagonal and horizontal braces
+
+damage:
+  severities: [0.3, 0.5, 0.7, 1.0]
+
+modal:
+  n_modes: 20

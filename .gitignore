@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+
+# LUMO dataset downloads (Day 4) are hundreds of MB to a few GB, never commit these
+data/
+
+# Personal interview prep notes, not part of the project deliverable
+DAY_*.md
