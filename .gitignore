@@ -7,3 +7,6 @@ data/
 
 # Personal interview prep notes, not part of the project deliverable
 DAY_*.md
+
+# Internal planning document, not part of the project deliverable
+TowerWatch_guideline.md
