@@ -26,6 +26,15 @@ def brace_element_indices(element_type):
     return np.where((element_type == "diagonal") | (element_type == "horizontal"))[0]
 
 
+def default_damage_element(element_type):
+    """A representative mid-height diagonal brace, used as the single damage
+    location for demonstration purposes across scripts (Day 1 onward), so
+    every script targets the same, consistent element.
+    """
+    diagonal_idx = np.where(element_type == "diagonal")[0]
+    return int(diagonal_idx[len(diagonal_idx) // 2])
+
+
 def apply_damage(model, damage_specs):
     """Return a copy of `model` with reduced EA on the given brace elements.
 

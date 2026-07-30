@@ -27,3 +27,24 @@ damage:
 
 modal:
   n_modes: 20
+
+simulate:
+  sampling_rate_hz: 500        # placeholder until LUMO's real rate is read (Day 4)
+  window_length: 1024          # samples per window (~2.05 s at 500 Hz)
+  windows_per_instance: 4      # windows sliced from each simulated instance
+  n_instances_per_class: 20    # independent (temperature, noise) draws per damage class
+  damping_ratio: 0.01          # modal damping ratio (1%), applied to every retained mode
+  excitation_std_n: 50.0       # std dev of the white-noise nodal force per excited DOF [N]
+  excitation_cutoff_hz: 60.0   # low-pass cutoff for the band-limited excitation
+  measurement_noise_rms_fraction: 0.02   # 2% RMS measurement noise, relative to each channel
+  burn_in_seconds: 8.0         # discarded before windowing, lets startup transient decay
+  n_sensor_levels: 6           # mirrors LUMO's 6 measurement levels (3 legs x 6 = 18 sensors)
+
+environment:
+  temperature_min_c: -10.0
+  temperature_max_c: 40.0
+  reference_temperature_c: 20.0
+  modulus_temp_coefficient_per_c: 0.0003   # E(T) = E0 * (1 - alpha*(T - T0))
+
+features:
+  band_edges_hz: [0, 5, 10, 15, 20, 30, 50, 100]
