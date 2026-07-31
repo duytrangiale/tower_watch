@@ -32,7 +32,7 @@ simulate:
   sampling_rate_hz: 500        # placeholder until LUMO's real rate is read (Day 4)
   window_length: 1024          # samples per window (~2.05 s at 500 Hz)
   windows_per_instance: 4      # windows sliced from each simulated instance
-  n_instances_per_class: 20    # independent (temperature, noise) draws per damage class
+  n_instances_per_class: 150   # independent (temperature, noise) draws per damage class
   damping_ratio: 0.01          # modal damping ratio (1%), applied to every retained mode
   excitation_std_n: 50.0       # std dev of the white-noise nodal force per excited DOF [N]
   excitation_cutoff_hz: 60.0   # low-pass cutoff for the band-limited excitation
@@ -48,3 +48,20 @@ environment:
 
 features:
   band_edges_hz: [0, 5, 10, 15, 20, 30, 50, 100]
+
+graph:
+  n_distance_levels: 2   # connect each sensor to its 2 nearest hop-distance categories
+
+model:
+  healthy_test_fraction: 0.25   # fraction of healthy INSTANCES held out for final testing, not windows
+  healthy_val_fraction: 0.15    # fraction of healthy INSTANCES held out for early stopping / overfit checks
+  random_seed: 0
+  hidden_dim: 16
+  latent_dim: 8
+  learning_rate: 0.005   # lowered from 0.01: the larger Stage 3 dataset needed a smaller step for stable convergence
+  max_epochs: 3000              # safety cap; training stops earlier via early stopping below
+  early_stopping_patience: 100  # stop once validation loss hasn't improved for this many epochs
+  early_stopping_min_delta: 0.0001
+  pca_n_components: 10
+  isolation_forest_n_estimators: 100
+  localization_top_k: 3

@@ -138,3 +138,49 @@ def plot_face_elevation(geometry, leg_a=0, leg_b=1, ax=None, title=None, sensor_
     ax.grid(True, alpha=0.3)
     ax.legend(loc="upper right", fontsize=8)
     return fig, ax
+
+
+def plot_localization_heatmap(geometry, sensor_node_ids, values, damaged_element_nodes=None,
+                               ax=None, title="Per-sensor reconstruction error", value_label="error"):
+    """2D elevation-style heatmap: the tower's members drawn faintly in the
+    background, sensor nodes coloured by `values` (e.g. reconstruction
+    error), and the actual damaged brace marked, so predicted and true
+    damage location can be compared visually. See
+    TowerWatch_guideline.md Sec 8.2 (figure 5: localisation heat map).
+
+    Projects every node onto (leg index position, height) rather than a
+    single face, so all 18 sensors are visible at once, spread out
+    left-to-right by leg.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(5, 9))
+    else:
+        fig = ax.get_figure()
+
+    nodes = geometry.nodes
+    leg_x = {0: 0.0, 1: 1.2, 2: 0.6}  # spread the 3 legs out for a readable 2D layout
+
+    def local_xy(node_id):
+        return leg_x[node_id % 3], nodes[node_id, 2]
+
+    for (i, j), etype in zip(geometry.elements, geometry.element_type):
+        (x0, z0), (x1, z1) = local_xy(i), local_xy(j)
+        ax.plot([x0, x1], [z0, z1], color="lightgray", linewidth=0.8, zorder=1)
+
+    sensor_xy = np.array([local_xy(n) for n in sensor_node_ids])
+    scatter = ax.scatter(sensor_xy[:, 0], sensor_xy[:, 1], c=values, cmap="viridis", s=220,
+                          edgecolors="black", linewidths=0.8, zorder=3)
+    fig.colorbar(scatter, ax=ax, label=value_label, shrink=0.7)
+
+    if damaged_element_nodes is not None:
+        damage_xy = np.mean([local_xy(n) for n in damaged_element_nodes], axis=0)
+        ax.scatter(*damage_xy, marker="x", color="red", s=200, linewidths=3, zorder=4,
+                   label="Actual damage location")
+        ax.legend(loc="upper right", fontsize=8)
+
+    ax.set_xlabel("leg (spread out for readability, not true x position)")
+    ax.set_ylabel("height z (m)")
+    ax.set_title(title)
+    ax.set_xticks(list(leg_x.values()))
+    ax.set_xticklabels([f"leg {k}" for k in leg_x])
+    return fig, ax
