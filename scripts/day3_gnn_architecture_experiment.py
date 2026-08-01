@@ -1,8 +1,12 @@
 """Day 3 follow-up experiment (not part of the main pipeline): does
 replacing the plain GCN's fixed-weight neighbour averaging with a richer
 message-passing layer, mean-aggregated or attention-weighted (a graph
-attention network, GAT), improve detection or localisation? See
-DAY_3.md for why this was worth testing, and the result.
+attention network, GAT), improve detection or localisation? Also compares
+the opposite extreme: a per-sensor autoencoder with no neighbour mixing
+at all (src/models/per_sensor_ae.py), to test whether the graph's
+cross-sensor mixing is helping localisation or diluting it, an idea from
+the SHM literature (see DAY_3.md, "Richer architectures", for why this
+was worth testing, and the result).
 
 Reuses the exact healthy train/validation/test split and scaler saved by
 scripts/03_train.py, so the comparison against the plain GCN is
@@ -32,6 +36,7 @@ from src.fem.geometry import generate_lattice_geometry
 from src.graph.build import nearest_sensor_by_hops
 from src.models.gcn_ae import GCNAutoencoder, per_node_error
 from src.models.message_passing_ae import MessagePassingAutoencoder
+from src.models.per_sensor_ae import PerSensorAutoencoder
 from src.models.train_utils import train_autoencoder
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -127,6 +132,10 @@ def main() -> None:
         "Message passing, attention (GAT)": (
             lambda: MessagePassingAutoencoder(n_features, model_cfg["hidden_dim"], model_cfg["latent_dim"],
                                                use_attention=True), adjacency,
+        ),
+        "Per-sensor (no graph)": (
+            lambda: PerSensorAutoencoder(n_sensors, n_features, model_cfg["hidden_dim"], model_cfg["latent_dim"]),
+            a_hat,  # ignored by this architecture, passed only because train_autoencoder expects some prop_matrix
         ),
     }
 
