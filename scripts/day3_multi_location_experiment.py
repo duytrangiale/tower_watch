@@ -64,7 +64,10 @@ FIGURES_DIR = REPO_ROOT / "figures"
 NON_FEATURE_COLUMNS = ("window_id", "sensor_idx", "sensor_node_id", "instance_id",
                         "damage_severity", "temperature_c")
 
-N_INSTANCES_PER_CLASS = 40  # reduced from the main pipeline's 150, see module docstring
+N_INSTANCES_PER_CLASS = 15  # reduced from the main pipeline's 150, see module docstring; further reduced
+                             # from an earlier 40 after Stage 4's sampling-rate change (500 -> 1651.61 Hz,
+                             # window_length 1024 -> 3383) raised the cost per simulated instance by
+                             # roughly 3.3x, to keep this experiment's runtime reasonable
 SIM_SEED = 101               # separate from model_cfg.random_seed: independently reproducible
 
 

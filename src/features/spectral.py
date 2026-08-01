@@ -17,7 +17,14 @@ def spectral_features(windows: np.ndarray, sampling_rate_hz: float, band_edges_h
     dict of (n_windows, n_sensors) arrays.
     """
     window_length = windows.shape[-1]
-    nperseg = min(256, window_length)
+    # Welch's frequency resolution is sampling_rate_hz / nperseg, not a
+    # function of nperseg alone: a fixed nperseg (e.g. 256) gets coarser,
+    # in Hz, every time sampling_rate_hz goes up. Targeting a fixed
+    # resolution instead keeps behaviour consistent across sampling
+    # rates. ~2 Hz was the resolution the project's original 500 Hz,
+    # 256-sample setup happened to use; kept as the target here.
+    target_resolution_hz = 2.0
+    nperseg = min(window_length, round(sampling_rate_hz / target_resolution_hz))
     freqs, psd = welch(windows, fs=sampling_rate_hz, nperseg=nperseg, axis=-1)
     # freqs: (n_freq,), psd: (n_windows, n_sensors, n_freq)
 

@@ -58,7 +58,8 @@ NON_FEATURE_COLUMNS = ("window_id", "sensor_idx", "sensor_node_id", "instance_id
                         "damage_severity", "temperature_c")
 
 N_LOCATIONS = 12
-N_INSTANCES_PER_CLASS = 40   # matches day3_multi_location_experiment.py
+N_INSTANCES_PER_CLASS = 15   # matches day3_multi_location_experiment.py; see that file's comment on why
+                              # this was reduced from an earlier 40 after Stage 4's sampling-rate change
 SIM_SEED = 202                # separate from that script's seed (101) and model_cfg.random_seed
 
 
