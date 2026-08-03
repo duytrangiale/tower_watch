@@ -14,6 +14,7 @@ __pycache__/
 
 # Personal interview prep notes, not part of the project deliverable
 DAY_*.md
+CLAUDE.md
 
 # Internal planning document, not part of the project deliverable
 TowerWatch_guideline.md
