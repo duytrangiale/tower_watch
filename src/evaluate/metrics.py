@@ -18,6 +18,23 @@ def roc_curve_points(is_damaged: np.ndarray, scores: np.ndarray):
     return roc_curve(is_damaged, scores)
 
 
+def false_alarm_rate_at_detection_rate(is_damaged: np.ndarray, scores: np.ndarray,
+                                        target_tpr: float) -> float:
+    """False positive rate at the lowest threshold that still catches at
+    least `target_tpr` of the damaged windows (Sec 8.3: the operating
+    point matters more than peak AUC, since a false positive means an
+    unnecessary truck roll and climb crew, not a free action). Returns
+    1.0 if no threshold reaches `target_tpr` (roc_curve's fpr/tpr are
+    already sorted ascending by threshold, ending at (1.0, 1.0), so this
+    can only happen if target_tpr > 1.0).
+    """
+    fpr, tpr, _ = roc_curve_points(is_damaged, scores)
+    reaches_target = np.where(tpr >= target_tpr)[0]
+    if len(reaches_target) == 0:
+        return 1.0
+    return float(fpr[reaches_target[0]])
+
+
 def localization_rank(per_node_error: np.ndarray, expected_node_idx: int) -> int:
     """Where the expected (nearest-to-damage) sensor ranks among all nodes
     sorted by descending reconstruction error, for one window. Rank 0

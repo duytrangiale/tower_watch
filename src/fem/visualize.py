@@ -140,6 +140,58 @@ def plot_face_elevation(geometry, leg_a=0, leg_b=1, ax=None, title=None, sensor_
     return fig, ax
 
 
+def plot_sensor_graph(geometry, sensor_node_ids, adjacency, ax=None,
+                       title="Sensor graph used by the GCN"):
+    """2D elevation-style plot of the sensor-to-sensor graph the GCN
+    actually operates on (src/graph/build.py's `build_sensor_graph`),
+    distinct from the tower's own structural members: two sensors can be
+    graph-connected without being joined by a single physical member, if
+    they are close in hop distance through the mesh. The tower's members
+    are drawn faintly in the background for context, exactly as in
+    `plot_localization_heatmap`, so the two graphs (structural, sensor)
+    can be compared directly. See TowerWatch_guideline.md Sec 8.2 (figure
+    1: tower geometry with sensor nodes and graph edges overlaid).
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(5, 9))
+    else:
+        fig = ax.get_figure()
+
+    nodes = geometry.nodes
+    leg_x = {0: 0.0, 1: 1.2, 2: 0.6}  # spread the 3 legs out for a readable 2D layout
+
+    def local_xy(node_id):
+        return leg_x[node_id % 3], nodes[node_id, 2]
+
+    for (i, j), etype in zip(geometry.elements, geometry.element_type):
+        (x0, z0), (x1, z1) = local_xy(i), local_xy(j)
+        ax.plot([x0, x1], [z0, z1], color="lightgray", linewidth=0.8, zorder=1)
+
+    n_sensors = len(sensor_node_ids)
+    drawn_label = False
+    for i in range(n_sensors):
+        for j in range(i + 1, n_sensors):
+            if adjacency[i, j] == 0:
+                continue
+            (x0, z0) = local_xy(sensor_node_ids[i])
+            (x1, z1) = local_xy(sensor_node_ids[j])
+            ax.plot([x0, x1], [z0, z1], color="tab:red", linewidth=1.8, alpha=0.8, zorder=2,
+                     label="Sensor graph edge" if not drawn_label else None)
+            drawn_label = True
+
+    sensor_xy = np.array([local_xy(n) for n in sensor_node_ids])
+    ax.scatter(sensor_xy[:, 0], sensor_xy[:, 1], color="tab:green", marker="^", s=140,
+               edgecolors="black", linewidths=0.8, zorder=3, label="Sensor")
+
+    ax.set_xlabel("leg (spread out for readability, not true x position)")
+    ax.set_ylabel("height z (m)")
+    ax.set_title(title)
+    ax.set_xticks(list(leg_x.values()))
+    ax.set_xticklabels([f"leg {k}" for k in leg_x])
+    ax.legend(loc="upper right", fontsize=8)
+    return fig, ax
+
+
 def plot_localization_heatmap(geometry, sensor_node_ids, values, damaged_element_nodes=None,
                                ax=None, title="Per-sensor reconstruction error", value_label="error"):
     """2D elevation-style heatmap: the tower's members drawn faintly in the

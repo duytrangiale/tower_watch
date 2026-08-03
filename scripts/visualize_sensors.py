@@ -19,7 +19,8 @@ import matplotlib.pyplot as plt
 import yaml
 
 from src.fem.geometry import generate_lattice_geometry
-from src.fem.visualize import plot_face_elevation, plot_geometry_3d
+from src.fem.visualize import plot_face_elevation, plot_geometry_3d, plot_sensor_graph
+from src.graph.build import build_sensor_graph
 from src.simulate.response import select_sensor_nodes
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +60,13 @@ def main() -> None:
     out_elev = FIGURES_DIR / "sensor_placement_elevation.png"
     fig_elev.savefig(out_elev, dpi=150, bbox_inches="tight")
     print(f"Saved {out_elev}")
+
+    adjacency, _ = build_sensor_graph(geometry, sensor_node_ids, config["graph"]["n_distance_levels"])
+    print(f"Sensor graph: {int(adjacency.sum()) // 2} edges (this is what the GCN actually propagates over)")
+    fig_graph, _ = plot_sensor_graph(geometry, sensor_node_ids, adjacency)
+    out_graph = FIGURES_DIR / "sensor_graph.png"
+    fig_graph.savefig(out_graph, dpi=150, bbox_inches="tight")
+    print(f"Saved {out_graph}")
 
     if not args.no_show:
         print("Opening interactive window: click and drag to rotate, close it to continue.")
